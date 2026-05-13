@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI College Survival Assistant</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --accent-color: #2563eb;
+            --accent-hover: #1d4ed8;
+            --border-color: #e5e7eb;
+            --card-bg: #ffffff;
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme='dark'] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border-color: #334155;
+            --card-bg: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+            transition: 0.3s;
+            flex-direction: column;
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            color: var(--accent-color);
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-item {
+            padding: 1rem 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--accent-color);
+            border-right: 4px solid var(--accent-color);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-secondary);
+            overflow-y: auto;
+        }
+
+        .navbar {
+            height: 70px;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+        }
+
+        .footer {
+            background-color: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Utilities */
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .page {
+            padding: 2rem;
+            display: none;
+            animation: fadeIn 0.4s ease;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Landing Page */
+        .landing {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            width: 100%;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -1px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        .feature-cards {
+            display: flex;
+            gap: 2rem;
+            margin-top: 5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            max-width: 300px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Specific Components */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: var(--bg-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            outline: none;
+            margin-left: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        /* Chatbot */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chat-bubble {
+            padding: 1rem;
+            border-radius: 12px;
+            max-width: 80%;
+        }
+
+        .chat-user {
+            align-self: flex-end;
+            background-color: var(--accent-color);
+            color: white;
+            border-bottom-right-radius: 0;
+        }
+
+        .chat-ai {
+            align-self: flex-start;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border-bottom-left-radius: 0;
+        }
+
+        /* Timetable */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th,
+        td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-secondary);
+            font-weight: 600;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .nav-item {
+                display: inline-block;
+                padding: 0.5rem 1rem;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            /* Simplified for single file - toggle via JS usually */
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Landing Page (Front Page) -->
+    <div id="landing-page" class="landing">
+        <h1 class="hero-title">AI College<br>Survival Assistant</h1>
+        <p class="hero-subtitle">The ultimate platform for modern students. Manage your attendance, track assignments,
+            organize notes, and study smarter with your personal AI tutor.</p>
+
+        <button class="btn"
+            style="font-size: 1.25rem; padding: 1rem 3rem; border-radius: 50px; box-shadow: 0 10px 15px -3px rgba(37,99,235,0.3);"
+            onclick="handleGetStarted()">Get Started</button>
+
+        <div class="feature-cards">
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3 style="margin-bottom: 0.5rem; font-size: 1.25rem;">Attendance Tracker</h3>
+                <p style="color: var(--text-secondary);">Never fall below 75%. Track every class and calculate your
+                    exact percentage effortlessly.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3 style="margin-bottom: 0.5rem; font-size: 1.25rem;">AI Study Buddy</h3>
+                <p style="color: var(--text-secondary);">Stuck on a concept? Ask questions and get instant, accurate
+                    answers from our smart AI.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📝</div>
+                <h3 style="margin-bottom: 0.5rem; font-size: 1.25rem;">Smart Timetable</h3>
+                <p style="color: var(--text-secondary);">View your weekly schedule, organize your study notes, and never
+                    miss a deadline again.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Page (Hidden by default) -->
+    <div id="login-screen"
+        style="display: none; align-items: center; justify-content: center; min-height: 100vh; background-color: var(--bg-secondary); width: 100%;">
+        <div class="card" style="width: 100%; max-width: 400px; animation: fadeIn 0.5s;">
+            <h2 style="text-align: center; margin-bottom: 1rem;">Welcome Back</h2>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Sign in to your Survival
+                Assistant</p>
+
+            <form onsubmit="handleLogin(event)">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" placeholder="student@college.edu">
+
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" placeholder="••••••••">
+
+                <button type="submit" class="btn" style="width: 100%; font-size: 1.1rem; padding: 0.8rem;">Login to
+                    Dashboard</button>
+            </form>
+            <p style="text-align: center; margin-top: 1rem; font-size: 0.9rem;">
+                Don't have an account? <a href="#" style="color: var(--accent-color);">Register</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Main App (Hidden by default until login) -->
+    <div id="main-app" class="app-container" style="display: none;">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2 style="cursor: pointer;" onclick="goToLandingPage()">📚 AI Assist</h2>
+            <a class="nav-item active" onclick="switchPage('dashboard', this)">Dashboard</a>
+            <a class="nav-item" onclick="switchPage('attendance', this)">Attendance</a>
+            <a class="nav-item" onclick="switchPage('notes', this)">Study Notes</a>
+            <a class="nav-item" onclick="switchPage('assignments', this)">Assignments</a>
+            <a class="nav-item" onclick="switchPage('timetable', this)">Timetable</a>
+            <a class="nav-item" onclick="switchPage('chatbot', this)">AI Chatbot</a>
+            <a class="nav-item" onclick="switchPage('quiz', this)">Quiz</a>
+            <a class="nav-item" onclick="switchPage('profile', this)">Profile</a>
+            <a class="nav-item" onclick="logout()" style="color: #ef4444; margin-top: auto;">Logout</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Navbar -->
+            <div class="navbar">
+                <div class="search-bar">
+                    <span>🔍</span>
+                    <input type="text" placeholder="Search resources...">
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <button class="btn btn-secondary" onclick="toggleTheme()">🌓 Theme</button>
+                    <button class="btn btn-secondary" onclick="logout()"
+                        style="color: #ef4444; border-color: #ef4444;">Logout</button>
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer;"
+                        onclick="switchPage('profile', document.querySelectorAll('.nav-item')[7])">S</div>
+                </div>
+            </div>
+
+            <!-- 1. Dashboard -->
+            <div id="dashboard" class="page active">
+                <h1>Dashboard Overview 👋</h1>
+                <p class="subtitle">Welcome back! Here's what's happening today.</p>
+
+                <div class="grid">
+                    <div class="card" style="text-align: center; border-bottom: 4px solid #10b981;">
+                        <h2 style="font-size: 2.5rem; color: #10b981;">85%</h2>
+                        <p style="color: var(--text-secondary)">Overall Attendance</p>
+                    </div>
+                    <div class="card" style="text-align: center; border-bottom: 4px solid #f59e0b;">
+                        <h2 style="font-size: 2.5rem; color: #f59e0b;">4</h2>
+                        <p style="color: var(--text-secondary)">Pending Assignments</p>
+                    </div>
+                    <div class="card" style="text-align: center; border-bottom: 4px solid var(--accent-color);">
+                        <h2 style="font-size: 2.5rem; color: var(--accent-color);">12</h2>
+                        <p style="color: var(--text-secondary)">Notes Downloaded</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Upcoming Classes Today</h2>
+                    <table>
+                        <tr>
+                            <th>Time</th>
+                            <th>Subject</th>
+                            <th>Room</th>
+                        </tr>
+                        <tr>
+                            <td>10:00 AM</td>
+                            <td>Front End Full Stack Development</td>
+                            <td>Lab 1</td>
+                        </tr>
+                        <tr>
+                            <td>11:30 AM</td>
+                            <td>Data Structures using C++</td>
+                            <td>Room 302</td>
+                        </tr>
+                        <tr>
+                            <td>02:00 PM</td>
+                            <td>Building LLM Applications</td>
+                            <td>Room 105</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 2. Attendance -->
+            <div id="attendance" class="page">
+                <h1>Attendance Calculator</h1>
+                <p class="subtitle">Track your classes and maintain the required 75% attendance.</p>
+
+                <div class="grid">
+                    <div class="card">
+                        <h3 style="margin-bottom: 1rem;">Front End Full Stack Development</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <p class="subtitle" style="margin:0;">Attended / Total</p>
+                                <p style="font-weight: bold;"><span id="att-1">17</span> / <span id="tot-1">20</span>
+                                </p>
+                            </div>
+                            <h2 id="perc-1" style="color: #10b981;">85%</h2>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                            <button class="btn" style="flex:1; background: #10b981;"
+                                onclick="updateAtt(1, true)">Present</button>
+                            <button class="btn" style="flex:1; background: #ef4444;"
+                                onclick="updateAtt(1, false)">Absent</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="margin-bottom: 1rem;">Data Structures using C++</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <p class="subtitle" style="margin:0;">Attended / Total</p>
+                                <p style="font-weight: bold;"><span id="att-2">10</span> / <span id="tot-2">14</span>
+                                </p>
+                            </div>
+                            <h2 id="perc-2" style="color: #ef4444;">71%</h2>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                            <button class="btn" style="flex:1; background: #10b981;"
+                                onclick="updateAtt(2, true)">Present</button>
+                            <button class="btn" style="flex:1; background: #ef4444;"
+                                onclick="updateAtt(2, false)">Absent</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="margin-bottom: 1rem;">Database Systems</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <p class="subtitle" style="margin:0;">Attended / Total</p>
+                                <p style="font-weight: bold;"><span id="att-3">15</span> / <span id="tot-3">18</span>
+                                </p>
+                            </div>
+                            <h2 id="perc-3" style="color: #10b981;">83%</h2>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                            <button class="btn" style="flex:1; background: #10b981;"
+                                onclick="updateAtt(3, true)">Present</button>
+                            <button class="btn" style="flex:1; background: #ef4444;"
+                                onclick="updateAtt(3, false)">Absent</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="margin-bottom: 1rem;">Building LLM Applications</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <p class="subtitle" style="margin:0;">Attended / Total</p>
+                                <p style="font-weight: bold;"><span id="att-4">8</span> / <span id="tot-4">10</span></p>
+                            </div>
+                            <h2 id="perc-4" style="color: #10b981;">80%</h2>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                            <button class="btn" style="flex:1; background: #10b981;"
+                                onclick="updateAtt(4, true)">Present</button>
+                            <button class="btn" style="flex:1; background: #ef4444;"
+                                onclick="updateAtt(4, false)">Absent</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="margin-bottom: 1rem;">English Advance</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <p class="subtitle" style="margin:0;">Attended / Total</p>
+                                <p style="font-weight: bold;"><span id="att-5">18</span> / <span id="tot-5">20</span>
+                                </p>
+                            </div>
+                            <h2 id="perc-5" style="color: #10b981;">90%</h2>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                            <button class="btn" style="flex:1; background: #10b981;"
+                                onclick="updateAtt(5, true)">Present</button>
+                            <button class="btn" style="flex:1; background: #ef4444;"
+                                onclick="updateAtt(5, false)">Absent</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="margin-bottom: 1rem;">Mathematics</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <p class="subtitle" style="margin:0;">Attended / Total</p>
+                                <p style="font-weight: bold;"><span id="att-6">12</span> / <span id="tot-6">16</span>
+                                </p>
+                            </div>
+                            <h2 id="perc-6" style="color: #10b981;">75%</h2>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                            <button class="btn" style="flex:1; background: #10b981;"
+                                onclick="updateAtt(6, true)">Present</button>
+                            <button class="btn" style="flex:1; background: #ef4444;"
+                                onclick="updateAtt(6, false)">Absent</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Study Notes -->
+            <div id="notes" class="page">
+                <h1>Study Notes</h1>
+                <p class="subtitle">Upload and download study materials.</p>
+
+                <div class="grid" style="grid-template-columns: 1fr 2fr;">
+                    <div class="card">
+                        <h2>Upload File</h2>
+                        <form onsubmit="event.preventDefault(); alert('File uploaded successfully!');"
+                            style="margin-top: 1rem;">
+                            <input type="file" class="form-input"
+                                style="padding: 2rem 1rem; border: 2px dashed var(--accent-color); text-align: center;">
+                            <select class="form-input">
+                                <option>Front End Full Stack Development</option>
+                                <option>Data Structures using C++</option>
+                                <option>Database Systems</option>
+                                <option>Building LLM Applications</option>
+                                <option>English Advance</option>
+                                <option>Mathematics</option>
+                            </select>
+                            <button type="submit" class="btn" style="width:100%;">Upload Note</button>
+                        </form>
+                    </div>
+                    <div class="card">
+                        <h2>Recent Downloads</h2>
+                        <ul style="list-style: none; margin-top: 1rem;">
+                            <li
+                                style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                                <div><strong>Unit 1 - React Basics</strong><br><span
+                                        style="font-size: 0.8rem; color: var(--text-secondary);">Front End Full Stack •
+                                        2.4 MB</span></div>
+                                <button class="btn btn-secondary">Download</button>
+                            </li>
+                            <li
+                                style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                                <div><strong>Graphs & Trees</strong><br><span
+                                        style="font-size: 0.8rem; color: var(--text-secondary);">Data Structures using
+                                        C++ • 1.8 MB</span></div>
+                                <button class="btn btn-secondary">Download</button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Assignments -->
+            <div id="assignments" class="page">
+                <h1>Assignments & Tasks</h1>
+                <p class="subtitle">Manage your deadlines and projects.</p>
+
+                <div class="card">
+                    <form onsubmit="addTask(event)" style="display: flex; gap: 1rem;">
+                        <input type="text" id="taskInput" class="form-input" placeholder="Add a new assignment..."
+                            style="margin: 0;" required>
+                        <input type="date" class="form-input" style="width: auto; margin: 0;">
+                        <button type="submit" class="btn">Add Task</button>
+                    </form>
+                </div>
+                <div class="card">
+                    <ul id="taskList" style="list-style: none;">
+                        <li
+                            style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
+                            <div><input type="checkbox" style="margin-right: 10px;"> <strong>CIA-3 React
+                                    App</strong><br><span
+                                    style="font-size: 0.8rem; color: var(--text-secondary); margin-left: 25px;">Due:
+                                    Tomorrow</span></div>
+                            <span
+                                style="color: #ef4444; font-weight: bold; background: #fee2e2; padding: 0.2rem 0.8rem; border-radius: 12px; height: fit-content;">High</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 5. Timetable -->
+            <div id="timetable" class="page">
+                <h1>Class Timetable</h1>
+                <p class="subtitle">Your weekly academic schedule.</p>
+                <div class="card">
+                    <div id="timetable-buttons"
+                        style="display: flex; gap: 1rem; margin-bottom: 1rem; overflow-x: auto;">
+                        <button class="btn" onclick="showTimetable('monday', this)">Monday</button>
+                        <button class="btn btn-secondary" onclick="showTimetable('tuesday', this)">Tuesday</button>
+                        <button class="btn btn-secondary" onclick="showTimetable('wednesday', this)">Wednesday</button>
+                        <button class="btn btn-secondary" onclick="showTimetable('thursday', this)">Thursday</button>
+                        <button class="btn btn-secondary" onclick="showTimetable('friday', this)">Friday</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Subject</th>
+                                <th>Room</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tt-monday" class="tt-day">
+                            <tr>
+                                <td>09:00 AM</td>
+                                <td>Data Structures using C++</td>
+                                <td>Lab 1</td>
+                                <td>Lab</td>
+                            </tr>
+                            <tr>
+                                <td>10:30 AM</td>
+                                <td>Front End Full Stack Dev</td>
+                                <td>Room 302</td>
+                                <td>Lecture</td>
+                            </tr>
+                            <tr>
+                                <td>12:30 PM</td>
+                                <td>Database Systems</td>
+                                <td>Room 205</td>
+                                <td>Lecture</td>
+                            </tr>
+                            <tr>
+                                <td>02:00 PM</td>
+                                <td>Building LLM Applications</td>
+                                <td>Lab 3</td>
+                                <td>Lab</td>
+                            </tr>
+                        </tbody>
+                        <tbody id="tt-tuesday" class="tt-day" style="display: none;">
+                            <tr>
+                                <td>09:00 AM</td>
+                                <td>Mathematics</td>
+                                <td>Room 101</td>
+                                <td>Lecture</td>
+                            </tr>
+                            <tr>
+                                <td>11:00 AM</td>
+                                <td>English Advance</td>
+                                <td>Room 102</td>
+                                <td>Lecture</td>
+                            </tr>
+                            <tr>
+                                <td>01:00 PM</td>
+                                <td>Front End Full Stack Dev</td>
+                                <td>Lab 2</td>
+                                <td>Lab</td>
+                            </tr>
+                            <tr>
+                                <td>03:00 PM</td>
+                                <td>Database Systems</td>
+                                <td>Lab 1</td>
+                                <td>Lab</td>
+                            </tr>
+                        </tbody>
+                        <tbody id="tt-wednesday" class="tt-day" style="display: none;">
+                            <tr>
+                                <td>09:00 AM</td>
+                                <td>Building LLM Applications</td>
+                                <td>Room 305</td>
+                                <td>Lecture</td>
+                            </tr>
+                            <tr>
+                                <td>11:00 AM</td>
+                                <td>Data Structures using C++</td>
+                                <td>Room 302</td>
+                                <td>Lecture</td>
+                            </tr>
+                            <tr>
+                                <td>02:00 PM</td>
+                                <td>Mathematics</td>
+                                <td>Room 101</td>
+                                <td>Lecture</td>
+                            </tr>
+                        </tbody>
+                        <tbody id="tt-thursday" class="tt-day" style="display: none;">
+                            <tr>
+                                <td>10:00 AM</td>
+                                <td>English Advance</td>
+                                <td>Room 102</td>
+                                <td>Lecture</td>
+                            </tr>
+                            <tr>
+                                <td>12:00 PM</td>
+                                <td>Database Systems</td>
+                                <td>Room 205</td>
+                                <td>Lecture</td>
+                            </tr>
+                            <tr>
+                                <td>02:30 PM</td>
+                                <td>Front End Full Stack Dev</td>
+                                <td>Lab 2</td>
+                                <td>Lab</td>
+                            </tr>
+                        </tbody>
+                        <tbody id="tt-friday" class="tt-day" style="display: none;">
+                            <tr>
+                                <td>09:00 AM</td>
+                                <td>Data Structures using C++</td>
+                                <td>Lab 1</td>
+                                <td>Lab</td>
+                            </tr>
+                            <tr>
+                                <td>11:00 AM</td>
+                                <td>Building LLM Applications</td>
+                                <td>Lab 3</td>
+                                <td>Lab</td>
+                            </tr>
+                            <tr>
+                                <td>01:00 PM</td>
+                                <td>Mathematics</td>
+                                <td>Room 101</td>
+                                <td>Lecture</td>
+                            </tr>
+                            <tr>
+                                <td>03:00 PM</td>
+                                <td>Extracurriculars</td>
+                                <td>Field</td>
+                                <td>Activity</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 6. Chatbot -->
+            <div id="chatbot" class="page">
+                <h1>AI Study Assistant</h1>
+                <p class="subtitle">Ask questions and get help with your studies.</p>
+                <div class="card chat-container" style="padding: 0;">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="chat-bubble chat-ai">Hi! I am your AI Study Assistant. How can I help you today?
+                        </div>
+                    </div>
+                    <form onsubmit="handleChat(event)"
+                        style="padding: 1rem; border-top: 1px solid var(--border-color); display: flex; gap: 1rem;">
+                        <input type="text" id="chatInput" class="form-input" placeholder="Type your message..."
+                            style="margin: 0;" required>
+                        <button type="submit" class="btn">Send</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 7. Quiz -->
+            <div id="quiz" class="page">
+                <div id="quiz-list">
+                    <h1>Practice Quizzes</h1>
+                    <p class="subtitle">Test your knowledge before exams.</p>
+
+                    <!-- NEW CUSTOM QUIZ CARD -->
+                    <div class="card"
+                        style="background: linear-gradient(135deg, rgba(37,99,235,0.05) 0%, rgba(16,185,129,0.05) 100%); border: 2px dashed var(--accent-color);">
+                        <h2 style="margin-bottom: 0.5rem;">🤖 AI Custom Quiz Generator</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Enter any topic and our AI will
+                            generate a custom quiz for you! (Simulated for this demo)</p>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <input type="text" id="custom-topic" class="form-input"
+                                placeholder="e.g. Python, Quantum Physics, History..." style="flex: 1; margin: 0;">
+                            <select id="custom-q-count" class="form-input" style="width: auto; margin: 0;">
+                                <option value="3">3 Questions</option>
+                                <option value="5" selected>5 Questions</option>
+                                <option value="10">10 Questions</option>
+                            </select>
+                            <button class="btn" onclick="generateCustomQuiz()">Generate & Start</button>
+                        </div>
+                        <p id="custom-loading"
+                            style="display: none; color: var(--accent-color); margin-top: 1rem; font-weight: bold; animation: fadeIn 0.3s;">
+                            Generating questions... please wait.</p>
+                    </div>
+
+                    <div class="grid">
+                        <div class="card" style="text-align: center;">
+                            <h2 style="margin-bottom: 0.5rem;">Front End Full Stack Development</h2>
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="color: var(--text-secondary); margin-right: 0.5rem;">Select
+                                    length:</label>
+                                <select id="q-count-1" class="form-input"
+                                    style="width: auto; padding: 0.2rem; display: inline-block; margin: 0;">
+                                    <option value="5">5 Questions</option>
+                                    <option value="10">10 Questions</option>
+                                    <option value="15">15 Questions</option>
+                                </select>
+                            </div>
+                            <button class="btn" onclick="startQuiz(1)" style="width:100%;">Start Quiz</button>
+                        </div>
+                        <div class="card" style="text-align: center;">
+                            <h2 style="margin-bottom: 0.5rem;">Data Structures using C++</h2>
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="color: var(--text-secondary); margin-right: 0.5rem;">Select
+                                    length:</label>
+                                <select id="q-count-2" class="form-input"
+                                    style="width: auto; padding: 0.2rem; display: inline-block; margin: 0;">
+                                    <option value="5">5 Questions</option>
+                                    <option value="10">10 Questions</option>
+                                    <option value="15">15 Questions</option>
+                                </select>
+                            </div>
+                            <button class="btn" onclick="startQuiz(2)" style="width:100%;">Start Quiz</button>
+                        </div>
+                        <div class="card" style="text-align: center;">
+                            <h2 style="margin-bottom: 0.5rem;">Database Systems</h2>
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="color: var(--text-secondary); margin-right: 0.5rem;">Select
+                                    length:</label>
+                                <select id="q-count-3" class="form-input"
+                                    style="width: auto; padding: 0.2rem; display: inline-block; margin: 0;">
+                                    <option value="5">5 Questions</option>
+                                    <option value="10">10 Questions</option>
+                                    <option value="15">15 Questions</option>
+                                </select>
+                            </div>
+                            <button class="btn" onclick="startQuiz(3)" style="width:100%;">Start Quiz</button>
+                        </div>
+                        <div class="card" style="text-align: center;">
+                            <h2 style="margin-bottom: 0.5rem;">Building LLM Applications</h2>
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="color: var(--text-secondary); margin-right: 0.5rem;">Select
+                                    length:</label>
+                                <select id="q-count-4" class="form-input"
+                                    style="width: auto; padding: 0.2rem; display: inline-block; margin: 0;">
+                                    <option value="5">5 Questions</option>
+                                    <option value="10">10 Questions</option>
+                                    <option value="15">15 Questions</option>
+                                </select>
+                            </div>
+                            <button class="btn" onclick="startQuiz(4)" style="width:100%;">Start Quiz</button>
+                        </div>
+                        <div class="card" style="text-align: center;">
+                            <h2 style="margin-bottom: 0.5rem;">English Advance</h2>
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="color: var(--text-secondary); margin-right: 0.5rem;">Select
+                                    length:</label>
+                                <select id="q-count-5" class="form-input"
+                                    style="width: auto; padding: 0.2rem; display: inline-block; margin: 0;">
+                                    <option value="5">5 Questions</option>
+                                    <option value="10">10 Questions</option>
+                                    <option value="15">15 Questions</option>
+                                </select>
+                            </div>
+                            <button class="btn" onclick="startQuiz(5)" style="width:100%;">Start Quiz</button>
+                        </div>
+                        <div class="card" style="text-align: center;">
+                            <h2 style="margin-bottom: 0.5rem;">Mathematics</h2>
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="color: var(--text-secondary); margin-right: 0.5rem;">Select
+                                    length:</label>
+                                <select id="q-count-6" class="form-input"
+                                    style="width: auto; padding: 0.2rem; display: inline-block; margin: 0;">
+                                    <option value="5">5 Questions</option>
+                                    <option value="10">10 Questions</option>
+                                    <option value="15">15 Questions</option>
+                                </select>
+                            </div>
+                            <button class="btn" onclick="startQuiz(6)" style="width:100%;">Start Quiz</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Quiz Container -->
+                <div id="quiz-active-container" style="display: none; max-width: 600px; margin: 0 auto;">
+                    <button class="btn btn-secondary" style="margin-bottom: 1rem; border-radius: 50px;"
+                        onclick="exitQuiz()">← Exit Quiz</button>
+                    <div class="card">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <p style="color: var(--text-secondary); font-weight: bold; margin: 0;" id="quiz-progress">
+                                Question 1 of 3</p>
+                            <span id="active-quiz-topic"
+                                style="background: var(--accent-color); color: white; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">Topic</span>
+                        </div>
+                        <h2 id="quiz-question" style="margin-bottom: 2rem;">Question text</h2>
+                        <div id="quiz-options" style="display: flex; flex-direction: column; gap: 1rem;">
+                            <!-- Options injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Result Container -->
+                <div id="quiz-result-container"
+                    style="display: none; max-width: 600px; margin: 0 auto; text-align: center;">
+                    <div class="card" style="padding: 3rem 1rem;">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">🏆</div>
+                        <h2 style="font-size: 2rem; margin-bottom: 1rem;">Quiz Completed!</h2>
+                        <h1 id="quiz-score-display" style="font-size: 4rem; color: #10b981; margin-bottom: 1rem;">100%
+                        </h1>
+                        <p id="quiz-score-text"
+                            style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 1.2rem;">You scored X
+                            out of Y.</p>
+                        <button class="btn" onclick="exitQuiz()"
+                            style="width: 100%; max-width: 300px; font-size: 1.1rem; padding: 1rem;">Back to
+                            Quizzes</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. Profile -->
+            <div id="profile" class="page">
+                <h1>User Profile</h1>
+                <p class="subtitle">Manage your account details.</p>
+                <div class="card" style="max-width: 600px; margin: 0 auto;">
+                    <div style="text-align: center; margin-bottom: 2rem; position: relative;">
+                        <img id="profile-pic-preview"
+                            src="https://ui-avatars.com/api/?name=Student+Name&background=2563eb&color=fff&size=120"
+                            style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid var(--accent-color); margin: 0 auto 1rem; display: block;">
+
+                        <label for="profile-photo-upload"
+                            style="cursor: pointer; color: var(--accent-color); font-weight: bold; font-size: 0.9rem;">+
+                            Change Photo</label>
+                        <input type="file" id="profile-photo-upload" accept="image/*" style="display: none;"
+                            onchange="updateProfilePhoto(event)">
+
+                        <h2 id="display-name" style="margin-top: 1rem;">Student Name</h2>
+                        <p style="color: var(--text-secondary);">B.Tech Computer Science</p>
+                    </div>
+                    <form onsubmit="saveProfile(event)">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <label class="form-label">Full Name</label>
+                                <input type="text" id="prof-name" class="form-input" value="Student Name" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-input" value="student@college.edu">
+                            </div>
+                            <div>
+                                <label class="form-label">Section</label>
+                                <input type="text" id="prof-section" class="form-input" value="Section A">
+                            </div>
+                            <div>
+                                <label class="form-label">City</label>
+                                <input type="text" id="prof-city" class="form-input" value="Bangalore">
+                            </div>
+                            <div style="grid-column: span 2;">
+                                <label class="form-label">Pincode</label>
+                                <input type="text" id="prof-pin" class="form-input" value="560001">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">Save Profile
+                            Changes</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                &copy; 2026 AI College Survival Assistant. Developed for CIA-2 & CIA-3 Evaluation.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 0. Persistent Login State
+        document.addEventListener("DOMContentLoaded", () => {
+            if (localStorage.getItem("isLoggedIn") === "true") {
+                // Bypass landing and login if already logged in
+                document.getElementById('landing-page').style.display = 'none';
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'flex';
+            }
+        });
+
+        function handleGetStarted() {
+            document.getElementById('landing-page').style.display = 'none';
+            if (localStorage.getItem("isLoggedIn") === "true") {
+                document.getElementById('main-app').style.display = 'flex';
+            } else {
+                document.getElementById('login-screen').style.display = 'flex';
+            }
+        }
+
+        function goToLandingPage() {
+            document.getElementById('main-app').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('landing-page').style.display = 'flex';
+        }
+
+        function logout() {
+            localStorage.removeItem("isLoggedIn");
+            location.reload();
+        }
+
+        // 1. Login Logic
+        function handleLogin(e) {
+            e.preventDefault();
+            localStorage.setItem("isLoggedIn", "true");
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'flex';
+        }
+
+        // 2. Routing Logic
+        function switchPage(pageId, navElement) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            navElement.classList.add('active');
+        }
+
+        // 3. Theme Toggle Logic
+        let isDark = false;
+        function toggleTheme() {
+            isDark = !isDark;
+            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        }
+
+        // 4. Attendance Logic
+        function updateAtt(subjectId, isPresent) {
+            let attEl = document.getElementById(`att-${subjectId}`);
+            let totEl = document.getElementById(`tot-${subjectId}`);
+            let percEl = document.getElementById(`perc-${subjectId}`);
+
+            let attended = parseInt(attEl.innerText);
+            let total = parseInt(totEl.innerText);
+
+            total += 1;
+            if (isPresent) attended += 1;
+
+            let percentage = Math.round((attended / total) * 100);
+
+            attEl.innerText = attended;
+            totEl.innerText = total;
+            percEl.innerText = percentage + '%';
+
+            percEl.style.color = percentage >= 75 ? '#10b981' : '#ef4444';
+        }
+
+        // Timetable Logic
+        function showTimetable(day, btnElement) {
+            document.querySelectorAll('.tt-day').forEach(el => el.style.display = 'none');
+            document.getElementById(`tt-${day}`).style.display = 'table-row-group';
+
+            const container = document.getElementById('timetable-buttons');
+            container.querySelectorAll('button').forEach(btn => btn.className = 'btn btn-secondary');
+            btnElement.className = 'btn';
+        }
+
+        // Profile Logic
+        function updateProfilePhoto(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('profile-pic-preview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function saveProfile(event) {
+            event.preventDefault();
+            const newName = document.getElementById('prof-name').value;
+            document.getElementById('display-name').innerText = newName;
+            alert('Profile saved successfully!');
+        }
+
+        // 5. Tasks Logic
+        function addTask(event) {
+            event.preventDefault();
+            const input = document.getElementById('taskInput');
+            if (input.value.trim()) {
+                const li = document.createElement('li');
+                li.style.cssText = 'padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; animation: fadeIn 0.3s;';
+                li.innerHTML = `<div><input type="checkbox" style="margin-right: 10px;"> <strong>${input.value}</strong></div> <span style="color: #10b981; font-weight: bold; background: #dcfce7; padding: 0.2rem 0.8rem; border-radius: 12px; height: fit-content;">New</span>`;
+                document.getElementById('taskList').prepend(li);
+                input.value = '';
+            }
+        }
+
+        // 6. Chatbot Logic
+        function handleChat(event) {
+            event.preventDefault();
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const chatBox = document.getElementById('chat-messages');
+
+            chatBox.innerHTML += `<div class="chat-bubble chat-user">${text}</div>`;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            setTimeout(() => {
+                let reply = "I can definitely help with that. What specifically do you need to know?";
+                const lower = text.toLowerCase();
+                if (lower.includes('attendance')) reply = "Your attendance is looking good! You are at 85% overall.";
+                else if (lower.includes('timetable') || lower.includes('class')) reply = "You have Front End Full Stack Development next at 10:00 AM.";
+                else if (lower.includes('notes')) reply = "You can download Unit 1 notes from the Study Notes section.";
+
+                chatBox.innerHTML += `<div class="chat-bubble chat-ai">${reply}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 1000);
+        }
+
+        // 7. Quiz Logic
+        const quizData = {
+            1: [
+                { q: 'What does HTML stand for?', options: ['Hyper Text Markup Language', 'High Text Machine Language', 'Hyperlink Text Module Language'], a: 0 },
+                { q: 'Which tag is used for the largest heading in HTML?', options: ['<head>', '<h6>', '<h1>'], a: 2 },
+                { q: 'What does CSS stand for?', options: ['Computer Style Sheets', 'Cascading Style Sheets', 'Creative Style Sheets'], a: 1 },
+                { q: 'Which HTML element is used for the largest heading?', options: ['<h1>', '<heading>', '<h6>'], a: 0 },
+                { q: 'Which property is used to change the background color?', options: ['color', 'bgcolor', 'background-color'], a: 2 },
+                { q: 'Which HTML tag is used to define an internal style sheet?', options: ['<style>', '<script>', '<css>'], a: 0 },
+                { q: 'Which is the correct CSS syntax?', options: ['body:color=black;', 'body {color: black;}', '{body:color=black;}'], a: 1 },
+                { q: 'How do you insert a comment in a CSS file?', options: ['// this is a comment', '/* this is a comment */', '// this is a comment //'], a: 1 },
+                { q: 'Which property is used to change the text color of an element?', options: ['fgcolor', 'color', 'text-color'], a: 1 },
+                { q: 'In HTML, how do you specify a link to open in a new window?', options: ['target="_new"', 'target="_blank"', 'target="new"'], a: 1 },
+                { q: 'Which of these elements are all <table> elements?', options: ['<table><tr><td>', '<table><head><tfoot>', '<thead><body><tr>'], a: 0 },
+                { q: 'How can you make a numbered list?', options: ['<ol>', '<ul>', '<list>'], a: 0 },
+                { q: 'What is the correct HTML for making a checkbox?', options: ['<checkbox>', '<input type="check">', '<input type="checkbox">'], a: 2 },
+                { q: 'Which HTML attribute is used to define inline styles?', options: ['class', 'style', 'font'], a: 1 },
+                { q: 'Which CSS property controls the text size?', options: ['font-style', 'text-size', 'font-size'], a: 2 }
+            ],
+            2: [
+                { q: 'Which data structure uses LIFO?', options: ['Queue', 'Stack', 'Tree'], a: 1 },
+                { q: 'What is the time complexity of binary search?', options: ['O(n)', 'O(n^2)', 'O(log n)'], a: 2 },
+                { q: 'Which data structure uses FIFO?', options: ['Queue', 'Stack', 'Graph'], a: 0 },
+                { q: 'In a tree, the top node is called the...', options: ['Root', 'Leaf', 'Branch'], a: 0 },
+                { q: 'What data structure is used for BFS?', options: ['Stack', 'Queue', 'Array'], a: 1 },
+                { q: 'What data structure is used for DFS?', options: ['Stack', 'Queue', 'Array'], a: 0 },
+                { q: 'A graph with no cycles is called a...', options: ['Tree', 'Cyclic Graph', 'Complete Graph'], a: 0 },
+                { q: 'Which sorting algorithm has the best average case?', options: ['Bubble Sort', 'Insertion Sort', 'Merge Sort'], a: 2 },
+                { q: 'What is the worst-case time for Quick Sort?', options: ['O(n log n)', 'O(n^2)', 'O(n)'], a: 1 },
+                { q: 'Which of these is a linear data structure?', options: ['Tree', 'Graph', 'Array'], a: 2 },
+                { q: 'In a hash table, collisions can be resolved using...', options: ['Chaining', 'Queueing', 'Stacking'], a: 0 },
+                { q: 'A binary tree with maximum nodes at height h is...', options: ['2^h - 1', '2^(h+1) - 1', '2^h'], a: 1 },
+                { q: 'A node with no children is called a...', options: ['Root node', 'Leaf node', 'Internal node'], a: 1 },
+                { q: 'Which of these represents an Adjacency Matrix?', options: ['Array of Linked Lists', '2D Array', '1D Array'], a: 1 },
+                { q: 'What is the time complexity of pushing to a Stack?', options: ['O(1)', 'O(n)', 'O(log n)'], a: 0 }
+            ],
+            3: [
+                { q: 'What does SQL stand for?', options: ['Structured Query Language', 'Simple Query Language', 'Standard Question Language'], a: 0 },
+                { q: 'Which command is used to fetch data from a database?', options: ['GET', 'SELECT', 'FETCH'], a: 1 },
+                { q: 'Which key uniquely identifies a record in a table?', options: ['Foreign Key', 'Primary Key', 'Unique Key'], a: 1 },
+                { q: 'What does ACID stand for in databases?', options: ['Atomicity, Consistency, Isolation, Durability', 'Active, Consistent, Isolated, Durable', 'Automatic, Continuous, Immediate, Direct'], a: 0 },
+                { q: 'Which SQL statement is used to update data in a database?', options: ['MODIFY', 'SAVE', 'UPDATE'], a: 2 },
+                { q: 'Which of the following is NOT an aggregate function?', options: ['MIN', 'SUM', 'JOIN'], a: 2 },
+                { q: 'What type of JOIN returns all rows from both tables?', options: ['INNER JOIN', 'FULL OUTER JOIN', 'LEFT JOIN'], a: 1 },
+                { q: 'What does a Foreign Key do?', options: ['Creates an index', 'Links two tables together', 'Sorts the table'], a: 1 },
+                { q: 'Which operator is used to search for a specified pattern in a column?', options: ['LIKE', 'MATCH', 'FIND'], a: 0 },
+                { q: 'How do you delete a table completely from a database?', options: ['DELETE TABLE', 'REMOVE TABLE', 'DROP TABLE'], a: 2 },
+                { q: 'Which database type uses collections and documents instead of tables?', options: ['Relational (SQL)', 'NoSQL', 'Hierarchical'], a: 1 },
+                { q: 'What is normalization?', options: ['Adding more data', 'Organizing data to reduce redundancy', 'Encrypting data'], a: 1 },
+                { q: 'Which SQL keyword is used to sort the result-set?', options: ['ORDER BY', 'SORT BY', 'GROUP BY'], a: 0 },
+                { q: 'In MongoDB, data is stored in the form of...', options: ['JSON/BSON', 'XML', 'CSV'], a: 0 },
+                { q: 'Which statement adds a new column to a table?', options: ['MODIFY TABLE', 'ALTER TABLE', 'ADD COLUMN'], a: 1 }
+            ],
+            4: [
+                { q: 'What does LLM stand for?', options: ['Large Language Model', 'Linear Logic Machine', 'Learning Language Matrix'], a: 0 },
+                { q: 'Which architecture is most commonly used for modern LLMs like GPT?', options: ['CNN', 'Transformer', 'RNN'], a: 1 },
+                { q: 'What is the attention mechanism in Transformers designed to do?', options: ['Weigh the importance of different words in a sentence', 'Compress images', 'Generate random text'], a: 0 },
+                { q: 'Which process involves fine-tuning an LLM to align with human values?', options: ['RLHF', 'Pre-training', 'Tokenization'], a: 0 },
+                { q: 'What is a "Token" in the context of LLMs?', options: ['A cryptocurrency coin', 'A piece of text (like a word or subword)', 'A secret password'], a: 1 },
+                { q: 'Which hyperparameter controls the randomness of an LLMs output?', options: ['Temperature', 'Learning Rate', 'Epochs'], a: 0 },
+                { q: 'What does "Hallucination" mean in LLMs?', options: ['The model generating factually incorrect information', 'The model crashing', 'The model refusing to answer'], a: 0 },
+                { q: 'Which company developed the LLaMA model?', options: ['OpenAI', 'Google', 'Meta'], a: 2 },
+                { q: 'What is "Prompt Engineering"?', options: ['Building computer hardware', 'Crafting effective inputs to get the desired output from an LLM', 'Training a neural network from scratch'], a: 1 },
+                { q: 'Which technique allows LLMs to learn new tasks without weight updates?', options: ['Fine-tuning', 'In-context learning (Few-shot)', 'Backpropagation'], a: 1 },
+                { q: 'What is RAG in the context of LLM applications?', options: ['Random Action Generation', 'Retrieval-Augmented Generation', 'Recurrent Attention Gate'], a: 1 },
+                { q: 'Why is RAG useful?', options: ['It makes models smaller', 'It allows the model to look up external facts to reduce hallucinations', 'It trains the model faster'], a: 1 },
+                { q: 'What is "Parameter-Efficient Fine-Tuning" (PEFT)?', options: ['Training the whole model', 'Fine-tuning only a small subset of parameters to save compute', 'Deleting parameters'], a: 1 },
+                { q: 'Which of the following is a popular PEFT method?', options: ['LoRA', 'AdamW', 'Dropout'], a: 0 },
+                { q: 'What is a "Vector Database" primarily used for in LLM pipelines?', options: ['Storing user passwords', 'Storing word/document embeddings for fast semantic search', 'Hosting website HTML'], a: 1 }
+            ],
+            5: [
+                { q: 'What is a synonym for "Ubiquitous"?', options: ['Rare', 'Omnipresent', 'Dangerous'], a: 1 },
+                { q: 'What is an antonym for "Ephemeral"?', options: ['Permanent', 'Short-lived', 'Quick'], a: 0 },
+                { q: 'Identify the figure of speech: "The wind whispered through the trees."', options: ['Simile', 'Metaphor', 'Personification'], a: 2 },
+                { q: 'Which of these is a complex sentence?', options: ['I like cats.', 'Because he was late, he missed the train.', 'He ran fast and he won.'], a: 1 },
+                { q: 'What does the idiom "Bite the bullet" mean?', options: ['To endure a painful situation', 'To eat something hard', 'To shoot a gun'], a: 0 },
+                { q: 'Who wrote "Hamlet"?', options: ['Charles Dickens', 'William Shakespeare', 'Jane Austen'], a: 1 },
+                { q: 'What is a gerund?', options: ['A noun', 'A verb ending in -ing acting as a noun', 'An adjective'], a: 1 },
+                { q: 'Identify the tense: "I had been working."', options: ['Past Perfect Continuous', 'Present Perfect', 'Past Continuous'], a: 0 },
+                { q: 'What is the meaning of the prefix "anti-"?', options: ['For', 'Against', 'Before'], a: 1 },
+                { q: 'Which word is spelled correctly?', options: ['Accommodate', 'Acommodate', 'Accomodate'], a: 0 },
+                { q: 'What is a hyperbole?', options: ['A factual statement', 'An understated fact', 'An exaggerated statement'], a: 2 },
+                { q: 'Choose the correct pronoun: "Between you and ___."', options: ['I', 'me', 'myself'], a: 1 },
+                { q: 'What does "Procrastination" mean?', options: ['Being proactive', 'Delaying or postponing action', 'Studying hard'], a: 1 },
+                { q: 'An oxymoron is...', options: ['A figure of speech where contradictory terms appear in conjunction', 'A repeated sound', 'A long poem'], a: 0 },
+                { q: 'What is the primary purpose of an argumentative essay?', options: ['To entertain', 'To inform', 'To persuade the reader'], a: 2 }
+            ],
+            6: [
+                { q: 'What is the derivative of x^2?', options: ['2x', 'x', 'x^3'], a: 0 },
+                { q: 'What is the integral of 2x dx?', options: ['x^2 + C', '2x^2 + C', 'x + C'], a: 0 },
+                { q: 'What is the value of Pi to 2 decimal places?', options: ['3.12', '3.14', '3.16'], a: 1 },
+                { q: 'What is the formula for the area of a circle?', options: ['2πr', 'πr^2', 'πd'], a: 1 },
+                { q: 'Solve for x: 2x = 10', options: ['4', '5', '6'], a: 1 },
+                { q: 'What is the square root of 144?', options: ['12', '14', '16'], a: 0 },
+                { q: 'What is 7 * 8?', options: ['54', '56', '58'], a: 1 },
+                { q: 'What is the sine of 90 degrees?', options: ['0', '1', '-1'], a: 1 },
+                { q: 'What is the cosine of 0 degrees?', options: ['0', '1', '-1'], a: 1 },
+                { q: 'In a right triangle, a^2 + b^2 = ?', options: ['c^2', 'd^2', 'x^2'], a: 0 },
+                { q: 'What is the factorial of 5 (5!)?', options: ['100', '120', '150'], a: 1 },
+                { q: 'What is the probability of flipping a coin and getting heads?', options: ['1/4', '1/3', '1/2'], a: 2 },
+                { q: 'What is the sum of angles in a triangle?', options: ['90 degrees', '180 degrees', '360 degrees'], a: 1 },
+                { q: 'What does the matrix identity (I) multiplied by a matrix A equal?', options: ['0', 'I', 'A'], a: 2 },
+                { q: 'What is log base 10 of 100?', options: ['1', '2', '10'], a: 1 }
+            ]
+        };
+
+        let currentQuizId = null;
+        let currentQIndex = 0;
+        let currentScore = 0;
+        let currentQuizLength = 0;
+
+        function generateCustomQuiz() {
+            const topic = document.getElementById('custom-topic').value.trim();
+            if (!topic) {
+                alert("Please enter a topic first!");
+                return;
+            }
+
+            const count = parseInt(document.getElementById('custom-q-count').value);
+            document.getElementById('custom-loading').style.display = 'block';
+
+            // Simulate AI delay
+            setTimeout(() => {
+                document.getElementById('custom-loading').style.display = 'none';
+
+                // Pool all existing questions to create a "custom" mock quiz
+                let allQuestions = [];
+                for (let key in quizData) {
+                    if (key !== 'custom') {
+                        allQuestions = allQuestions.concat(quizData[key]);
+                    }
+                }
+
+                // Shuffle and slice
+                allQuestions.sort(() => 0.5 - Math.random());
+                quizData['custom'] = allQuestions.slice(0, count);
+
+                // Start the custom quiz
+                currentQuizId = 'custom';
+                currentQIndex = 0;
+                currentScore = 0;
+                currentQuizLength = count;
+
+                document.getElementById('quiz-list').style.display = 'none';
+                document.getElementById('quiz-result-container').style.display = 'none';
+                document.getElementById('quiz-active-container').style.display = 'block';
+
+                document.getElementById('active-quiz-topic').innerText = `Topic: ${topic}`;
+
+                renderQuestion();
+            }, 1500);
+        }
+
+        function startQuiz(quizId) {
+            const selectBox = document.getElementById(`q-count-${quizId}`);
+            const maxQ = selectBox ? parseInt(selectBox.value) : 15;
+
+            currentQuizId = quizId;
+            currentQIndex = 0;
+            currentScore = 0;
+
+            // Randomize questions for replayability and slice to requested length
+            const shuffled = [...quizData[quizId]].sort(() => 0.5 - Math.random());
+            quizData[quizId] = shuffled;
+
+            currentQuizLength = Math.min(maxQ, quizData[quizId].length);
+
+            let topicName = "Standard Quiz";
+            if (quizId == 1) topicName = "Front End";
+            if (quizId == 2) topicName = "Data Structures";
+            if (quizId == 3) topicName = "Database Systems";
+            if (quizId == 4) topicName = "Building LLMs";
+            if (quizId == 5) topicName = "English Advance";
+            if (quizId == 6) topicName = "Mathematics";
+            document.getElementById('active-quiz-topic').innerText = topicName;
+
+            document.getElementById('quiz-list').style.display = 'none';
+            document.getElementById('quiz-result-container').style.display = 'none';
+            document.getElementById('quiz-active-container').style.display = 'block';
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const quiz = quizData[currentQuizId];
+            const qData = quiz[currentQIndex];
+
+            document.getElementById('quiz-progress').innerText = `Question ${currentQIndex + 1} of ${currentQuizLength}`;
+            document.getElementById('quiz-question').innerText = qData.q;
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+
+            qData.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-secondary';
+                btn.style.cssText = 'text-align: left; padding: 1rem; width: 100%; border-radius: 8px; cursor: pointer; transition: 0.2s;';
+                btn.innerText = opt;
+                btn.onclick = () => handleAnswer(idx, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex, btnElement) {
+            const quiz = quizData[currentQuizId];
+            const correctIndex = quiz[currentQIndex].a;
+
+            const allBtns = document.getElementById('quiz-options').querySelectorAll('button');
+            allBtns.forEach(b => b.disabled = true);
+
+            if (selectedIndex === correctIndex) {
+                btnElement.style.backgroundColor = '#dcfce7';
+                btnElement.style.borderColor = '#10b981';
+                btnElement.style.color = '#065f46';
+                currentScore++;
+            } else {
+                btnElement.style.backgroundColor = '#fee2e2';
+                btnElement.style.borderColor = '#ef4444';
+                btnElement.style.color = '#991b1b';
+
+                allBtns[correctIndex].style.backgroundColor = '#dcfce7';
+                allBtns[correctIndex].style.borderColor = '#10b981';
+                allBtns[correctIndex].style.color = '#065f46';
+            }
+
+            setTimeout(() => {
+                currentQIndex++;
+                if (currentQIndex < currentQuizLength) {
+                    renderQuestion();
+                } else {
+                    showQuizResult();
+                }
+            }, 1500);
+        }
+
+        function showQuizResult() {
+            document.getElementById('quiz-active-container').style.display = 'none';
+            document.getElementById('quiz-result-container').style.display = 'block';
+
+            const perc = Math.round((currentScore / currentQuizLength) * 100);
+
+            const percEl = document.getElementById('quiz-score-display');
+            percEl.innerText = perc + '%';
+            percEl.style.color = perc >= 50 ? '#10b981' : '#ef4444';
+
+            document.getElementById('quiz-score-text').innerText = `You scored ${currentScore} out of ${currentQuizLength}.`;
+        }
+
+        function exitQuiz() {
+            document.getElementById('quiz-active-container').style.display = 'none';
+            document.getElementById('quiz-result-container').style.display = 'none';
+            document.getElementById('quiz-list').style.display = 'block';
+        }
+    </script>
+</body>
+
+</html>
